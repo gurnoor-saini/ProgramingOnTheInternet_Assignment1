@@ -13,8 +13,6 @@ app.use(express.static(path.join(__dirname, '../Frontend')));
 
 
 const client = new MongoClient(process.env.MONGO_URI);
-// const uri = "mongodb://gurnoorsaini0809_db_user:rAUzSkLuXSnrumFj@ac-p0yqid6-shard-00-00.s5vb0ue.mongodb.net:27017,ac-p0yqid6-shard-00-01.s5vb0ue.mongodb.net:27017,ac-p0yqid6-shard-00-02.s5vb0ue.mongodb.net:27017/flashcardsDB?ssl=true&replicaSet=atlas-5nkt8l-shard-0&authSource=admin&appName=Cluster0";
-// const client = new MongoClient(uri);
 let db;
 
 async function connectDB() {
