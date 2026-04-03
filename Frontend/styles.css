@@ -82,27 +82,40 @@ select {
 }
 
 .flashcard {
-  background-image: url('images/Card.png');
-  background-size: cover;
-  background-position: center;
+  background: var(--card-bg);
   color: var(--text-dark);
   padding: 15px;
   margin: 10px;
   width: 220px;
-  min-height: 220px;
-  border-radius: 3px;
-  box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 .flashcard:hover {
   transform: scale(1.05);
-  box-shadow: 6px 6px 16px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 12px rgba(176, 158, 153, 0.4);
 }
+
+.study-flashcard {
+  background-image: url('images/Card.png');
+  background-size: cover;
+  background-position: center;
+  color: var(--text-dark);
+  padding: 30px 20px;
+  margin: 10px;
+  width: 260px;
+  min-height: 260px;
+  border-radius: 3px;
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: box-shadow 0.3s ease;
+}
+
 .card-buttons {
   margin-top: 10px;
 }
@@ -122,6 +135,13 @@ select {
   margin: 0 0 10px 0;
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+.study-mode-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .study-controls-wrapper {
@@ -145,9 +165,10 @@ select {
   margin-top: 10px;
 }
 
-.study-mode-wrapper {
+.done-message {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  gap: 15px;
+  margin-top: 20px;
 }

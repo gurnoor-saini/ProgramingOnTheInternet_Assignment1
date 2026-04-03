@@ -115,42 +115,96 @@ function startStudyMode(groupName, groupCards) {
   let originalOrder = [...groupCards];
   studyPile = [...groupCards];
   currentIndex = 0;
-
   let randomized = false;
 
-function renderCard() {
+  function renderCard() {
+    flashcardsDiv.innerHTML = '';
+
     if (studyPile.length === 0) {
-      flashcardsDiv.innerHTML = `<h2>${groupName}</h2><p>All cards done!</p>`;
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('study-mode-wrapper');
+      wrapper.innerHTML = `<h2>${groupName}</h2>`;
+
+      const doneDiv = document.createElement('div');
+      doneDiv.classList.add('done-message');
+      doneDiv.innerHTML = `<p>All cards studied!</p>`;
+
       const backBtn = document.createElement('button');
       backBtn.textContent = 'Back to Groups';
       backBtn.onclick = loadFlashcards;
-      flashcardsDiv.appendChild(backBtn);
+      doneDiv.appendChild(backBtn);
+
+      wrapper.appendChild(doneDiv);
+      flashcardsDiv.appendChild(wrapper);
       return;
     }
 
     const card = studyPile[currentIndex];
-
-    flashcardsDiv.innerHTML = '';
+    let isFlipped = false;
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('study-mode-wrapper');
 
-    wrapper.innerHTML = `
-      <h2>${groupName} - Study Mode</h2>
-      <div class="flashcard">
-        <p class="card-counter">Card ${currentIndex + 1} of ${studyPile.length}</p>
-        <strong>Q:</strong> ${card.question}<br><br>
-        <strong>A:</strong> ${card.answer}<br><br>
-        <button id="tickBtn">✅</button>
-        <button id="crossBtn">❌</button>
-      </div>
-    `;
+    const title = document.createElement('h2');
+    title.textContent = `${groupName} - Study Mode`;
+    wrapper.appendChild(title);
 
-    const studyControlsWrapper = document.createElement('div');
-    studyControlsWrapper.classList.add('study-controls-wrapper');
+    const counter = document.createElement('p');
+    counter.classList.add('card-counter');
+    counter.textContent = `Card ${currentIndex + 1} of ${studyPile.length}`;
+    wrapper.appendChild(counter);
 
-    const studyBtnRow = document.createElement('div');
-    studyBtnRow.classList.add('study-btn-row');
+    const cardEl = document.createElement('div');
+    cardEl.classList.add('study-flashcard');
+    cardEl.innerHTML = `<strong>Q:</strong> ${card.question}`;
+    wrapper.appendChild(cardEl);
+
+    const cardBtnRow = document.createElement('div');
+    cardBtnRow.classList.add('study-controls-wrapper');
+
+    const cardBtns = document.createElement('div');
+    cardBtns.classList.add('study-btn-row');
+
+  const answerBtn = document.createElement('button');
+    answerBtn.textContent = 'Show Answer';
+    answerBtn.onclick = () => {
+      if (!isFlipped) {
+        isFlipped = true;
+        cardEl.innerHTML = `<strong>Q:</strong> ${card.question}<br><br><strong>A:</strong> ${card.answer}`;
+        answerBtn.textContent = 'Hide Answer';
+      } else {
+        isFlipped = false;
+        cardEl.innerHTML = `<strong>Q:</strong> ${card.question}`;
+        answerBtn.textContent = 'Show Answer';
+      }
+    };
+    cardBtns.appendChild(answerBtn);
+
+    const tickBtn = document.createElement('button');
+    tickBtn.textContent = '✅';
+    tickBtn.onclick = () => {
+      studyPile.splice(currentIndex, 1);
+      renderCard();
+    };
+    cardBtns.appendChild(tickBtn);
+
+    const crossBtn = document.createElement('button');
+    crossBtn.textContent = '❌';
+    crossBtn.onclick = () => {
+      const c = studyPile.splice(currentIndex, 1)[0];
+      studyPile.push(c);
+      renderCard();
+    };
+    cardBtns.appendChild(crossBtn);
+
+    cardBtnRow.appendChild(cardBtns);
+    wrapper.appendChild(cardBtnRow);
+
+    const navBtnRow = document.createElement('div');
+    navBtnRow.classList.add('study-controls-wrapper');
+
+    const navBtns = document.createElement('div');
+    navBtns.classList.add('study-btn-row');
 
     const randomBtn = document.createElement('button');
     randomBtn.textContent = randomized ? 'Randomize: On' : 'Randomize: Off';
@@ -165,27 +219,17 @@ function renderCard() {
       currentIndex = 0;
       renderCard();
     };
-    studyBtnRow.appendChild(randomBtn);
+    navBtns.appendChild(randomBtn);
 
     const backBtn = document.createElement('button');
     backBtn.textContent = 'Back to Groups';
     backBtn.onclick = loadFlashcards;
-    studyBtnRow.appendChild(backBtn);
+    navBtns.appendChild(backBtn);
 
-    studyControlsWrapper.appendChild(studyBtnRow);
-    wrapper.appendChild(studyControlsWrapper);
+    navBtnRow.appendChild(navBtns);
+    wrapper.appendChild(navBtnRow);
+
     flashcardsDiv.appendChild(wrapper);
-
-    wrapper.querySelector('#tickBtn').onclick = () => {
-      studyPile.splice(currentIndex, 1);
-      renderCard();
-    };
-
-    wrapper.querySelector('#crossBtn').onclick = () => {
-      const c = studyPile.splice(currentIndex, 1)[0];
-      studyPile.push(c);
-      renderCard();
-    };
   }
 
   renderCard();
