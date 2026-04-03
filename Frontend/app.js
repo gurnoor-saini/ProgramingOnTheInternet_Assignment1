@@ -141,6 +141,7 @@ function startStudyMode(groupName, groupCards) {
 
     const card = studyPile[currentIndex];
     let isFlipped = false;
+    let isAnimating = false;
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('study-mode-wrapper');
@@ -165,7 +166,7 @@ function startStudyMode(groupName, groupCards) {
     const cardBtns = document.createElement('div');
     cardBtns.classList.add('study-btn-row');
 
-  const answerBtn = document.createElement('button');
+    const answerBtn = document.createElement('button');
     answerBtn.textContent = 'Show Answer';
     answerBtn.onclick = () => {
       if (!isFlipped) {
@@ -182,18 +183,42 @@ function startStudyMode(groupName, groupCards) {
 
     const tickBtn = document.createElement('button');
     tickBtn.textContent = '✅';
+    tickBtn.addEventListener('mouseenter', () => {
+      cardEl.classList.add('hover-correct');
+    });
+    tickBtn.addEventListener('mouseleave', () => {
+      cardEl.classList.remove('hover-correct');
+    });
     tickBtn.onclick = () => {
-      studyPile.splice(currentIndex, 1);
-      renderCard();
+      if (isAnimating) return;
+      isAnimating = true;
+      cardEl.classList.remove('hover-correct');
+      cardEl.classList.add('correct-anim');
+      setTimeout(() => {
+        studyPile.splice(currentIndex, 1);
+        renderCard();
+      }, 800);
     };
     cardBtns.appendChild(tickBtn);
 
     const crossBtn = document.createElement('button');
     crossBtn.textContent = '❌';
+    crossBtn.addEventListener('mouseenter', () => {
+      cardEl.classList.add('hover-wrong');
+    });
+    crossBtn.addEventListener('mouseleave', () => {
+      cardEl.classList.remove('hover-wrong');
+    });
     crossBtn.onclick = () => {
-      const c = studyPile.splice(currentIndex, 1)[0];
-      studyPile.push(c);
-      renderCard();
+      if (isAnimating) return;
+      isAnimating = true;
+      cardEl.classList.remove('hover-wrong');
+      cardEl.classList.add('wrong-anim');
+      setTimeout(() => {
+        const c = studyPile.splice(currentIndex, 1)[0];
+        studyPile.push(c);
+        renderCard();
+      }, 600);
     };
     cardBtns.appendChild(crossBtn);
 
