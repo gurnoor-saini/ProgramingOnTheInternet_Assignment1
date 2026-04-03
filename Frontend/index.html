@@ -5,16 +5,26 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
   <h1>Flashcards</h1>
+
+  <div>
+    <input type="text" id="newGroup" placeholder="New group name">
+    <button onclick="addGroup()">Add Group</button>
+  </div>
 
   <form id="flashcardForm">
     <input type="text" id="question" placeholder="Enter question" required>
     <input type="text" id="answer" placeholder="Enter answer" required>
+
+    <select id="group" required>
+      <option value="">Select group</option>
+    </select>
+
     <button type="submit">Add Flashcard</button>
   </form>
 
-   <div id="flashcards"></div>
+  <div id="flashcards"></div>
   <script src="app.js"></script>
-
 </body>
 </html>
