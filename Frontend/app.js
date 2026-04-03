@@ -1,10 +1,21 @@
 const form = document.getElementById('flashcardForm');
 const flashcardsDiv = document.getElementById('flashcards');
+const addFlashcardSection = document.getElementById('addFlashcardSection');
 
 const backendURL = 'http://localhost:3000';
 
 let studyPile = [];
 let currentIndex = 0;
+
+function hideAddFlashCardSection() {
+  addFlashcardSection.style.display = 'none';
+  form.style.display = 'none';
+}
+
+function showAddFlashCardSection() {
+  addFlashcardSection.style.display = '';
+  form.style.display = '';
+}
 
 async function loadGroups() {
   const res = await fetch(`${backendURL}/groups`);
@@ -46,6 +57,8 @@ async function deleteGroup(name) {
 }
 
 async function loadFlashcards() {
+  showAddFlashCardSection();
+
   const groups = await fetch(`${backendURL}/groups`).then(r => r.json());
   const cards = await fetch(`${backendURL}/flashcards`).then(r => r.json());
 
@@ -59,7 +72,8 @@ async function loadFlashcards() {
     div.classList.add('flashcard');
 
     const title = document.createElement('h3');
-    title.textContent = `${groupName} (${groupCards.length} card(s))`;
+    const cardCount = groupCards.length;
+    title.textContent = `${groupName} — ${cardCount} ${cardCount === 1 ? 'card' : 'cards'}`;
     div.appendChild(title);
 
     const btnContainer = document.createElement('div');
@@ -96,48 +110,51 @@ async function loadFlashcards() {
 }
 
 function startStudyMode(groupName, groupCards) {
+  hideAddFlashCardSection();
+
   let originalOrder = [...groupCards];
   studyPile = [...groupCards];
   currentIndex = 0;
 
   let randomized = false;
 
-  function renderCard() {
+function renderCard() {
     if (studyPile.length === 0) {
       flashcardsDiv.innerHTML = `<h2>${groupName}</h2><p>All cards done!</p>`;
       const backBtn = document.createElement('button');
-      backBtn.textContent = '← Back to Groups';
+      backBtn.textContent = 'Back to Groups';
       backBtn.onclick = loadFlashcards;
       flashcardsDiv.appendChild(backBtn);
       return;
     }
 
     const card = studyPile[currentIndex];
-    flashcardsDiv.innerHTML = `
+
+    flashcardsDiv.innerHTML = '';
+
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('study-mode-wrapper');
+
+    wrapper.innerHTML = `
       <h2>${groupName} - Study Mode</h2>
       <div class="flashcard">
-        <strong>Q:</strong> ${card.question}<br>
-        <strong>A:</strong> ${card.answer}<br>
+        <p class="card-counter">Card ${currentIndex + 1} of ${studyPile.length}</p>
+        <strong>Q:</strong> ${card.question}<br><br>
+        <strong>A:</strong> ${card.answer}<br><br>
         <button id="tickBtn">✅</button>
         <button id="crossBtn">❌</button>
       </div>
-      <p>Card ${currentIndex + 1} of ${studyPile.length}</p>
     `;
 
-    document.getElementById('tickBtn').onclick = () => {
-      studyPile.splice(currentIndex, 1);
-      renderCard();
-    };
+    const studyControlsWrapper = document.createElement('div');
+    studyControlsWrapper.classList.add('study-controls-wrapper');
 
-    document.getElementById('crossBtn').onclick = () => {
-      const c = studyPile.splice(currentIndex, 1)[0];
-      studyPile.push(c);
-      renderCard();
-    };
+    const studyBtnRow = document.createElement('div');
+    studyBtnRow.classList.add('study-btn-row');
 
     const randomBtn = document.createElement('button');
-    randomBtn.textContent = randomized ? 'Turn Randomize off' : 'Turn randomize on';
-    randomBtn.style.backgroundColor = randomized ? '#4CAF50' : '';
+    randomBtn.textContent = randomized ? 'Randomize: On' : 'Randomize: Off';
+    randomBtn.style.backgroundColor = randomized ? 'var(--btn-success)' : '';
     randomBtn.onclick = () => {
       randomized = !randomized;
       if (randomized) {
@@ -148,44 +165,30 @@ function startStudyMode(groupName, groupCards) {
       currentIndex = 0;
       renderCard();
     };
-    flashcardsDiv.appendChild(randomBtn);
+    studyBtnRow.appendChild(randomBtn);
+
+    const backBtn = document.createElement('button');
+    backBtn.textContent = 'Back to Groups';
+    backBtn.onclick = loadFlashcards;
+    studyBtnRow.appendChild(backBtn);
+
+    studyControlsWrapper.appendChild(studyBtnRow);
+    wrapper.appendChild(studyControlsWrapper);
+    flashcardsDiv.appendChild(wrapper);
+
+    wrapper.querySelector('#tickBtn').onclick = () => {
+      studyPile.splice(currentIndex, 1);
+      renderCard();
+    };
+
+    wrapper.querySelector('#crossBtn').onclick = () => {
+      const c = studyPile.splice(currentIndex, 1)[0];
+      studyPile.push(c);
+      renderCard();
+    };
   }
 
   renderCard();
-}
-
-function renderStudyCard(groupName) {
-  if (studyPile.length === 0) {
-    flashcardsDiv.innerHTML = `<h2>${groupName}</h2><p>All cards done!</p>`;
-    const backBtn = document.createElement('button');
-    backBtn.textContent = '← Back to Groups';
-    backBtn.onclick = loadFlashcards;
-    flashcardsDiv.appendChild(backBtn);
-    return;
-  }
-
-  const card = studyPile[currentIndex];
-  flashcardsDiv.innerHTML = `
-    <h2>${groupName} - Study Mode</h2>
-    <div class="flashcard">
-      <strong>Q:</strong> ${card.question}<br>
-      <strong>A:</strong> ${card.answer}<br>
-      <button id="tickBtn">✅ Tick</button>
-      <button id="crossBtn">❌ Cross</button>
-    </div>
-    <p>Card ${currentIndex + 1} of ${studyPile.length}</p>
-  `;
-
-  document.getElementById('tickBtn').onclick = () => {
-    studyPile.splice(currentIndex, 1);
-    renderStudyCard(groupName);
-  };
-
-  document.getElementById('crossBtn').onclick = () => {
-    const c = studyPile.splice(currentIndex, 1)[0];
-    studyPile.push(c);
-    renderStudyCard(groupName);
-  };
 }
 
 function shuffleArray(array) {
@@ -197,6 +200,7 @@ function shuffleArray(array) {
 }
 
 function showEditMode(groupName, groupCards) {
+  hideAddFlashCardSection();
   flashcardsDiv.innerHTML = `<h2>${groupName} - Edit Mode</h2>`;
 
   groupCards.forEach(card => {
@@ -207,6 +211,9 @@ function showEditMode(groupName, groupCards) {
       <strong>A:</strong> ${card.answer}<br>
     `;
 
+    const editBtnRow = document.createElement('div');
+    editBtnRow.classList.add('edit-btn-row');
+
     const editBtn = document.createElement('button');
     editBtn.textContent = 'Edit';
     editBtn.onclick = () => editCard(card);
@@ -215,13 +222,15 @@ function showEditMode(groupName, groupCards) {
     deleteBtn.textContent = 'Delete';
     deleteBtn.onclick = () => deleteCard(card._id);
 
-    div.appendChild(editBtn);
-    div.appendChild(deleteBtn);
+    editBtnRow.appendChild(editBtn);
+    editBtnRow.appendChild(deleteBtn);
+    div.appendChild(editBtnRow);
+
     flashcardsDiv.appendChild(div);
   });
 
   const backBtn = document.createElement('button');
-  backBtn.textContent = '← Back to Groups';
+  backBtn.textContent = 'Back to Groups';
   backBtn.onclick = loadFlashcards;
   flashcardsDiv.appendChild(backBtn);
 }
