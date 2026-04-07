@@ -1,11 +1,51 @@
 const form = document.getElementById('flashcardForm');
 const flashcardsDiv = document.getElementById('flashcards');
 const addFlashcardSection = document.getElementById('addFlashcardSection');
+const toast = document.getElementById('toast');
+const confirmModal = document.getElementById('confirmModal');
+const confirmMessage = document.getElementById('confirmMessage');
+const confirmOkBtn = document.getElementById('confirmOk');
+const confirmCancelBtn = document.getElementById('confirmCancel');
 
 const backendURL = 'http://localhost:3000';
 
 let studyPile = [];
 let currentIndex = 0;
+
+function showToast(message = 'Something went wrong. Please try again.') {
+  toast.textContent = message;
+  toast.classList.remove('hidden');
+  setTimeout(() => {
+    toast.classList.add('hidden');
+  }, 3000);
+}
+
+function showConfirm(message) {
+  return new Promise((resolve) => {
+    confirmMessage.textContent = message;
+    confirmModal.classList.remove('hidden');
+
+    const handleOk = () => {
+      confirmModal.classList.add('hidden');
+      cleanup();
+      resolve(true);
+    };
+
+    const handleCancel = () => {
+      confirmModal.classList.add('hidden');
+      cleanup();
+      resolve(false);
+    };
+
+    const cleanup = () => {
+      confirmOkBtn.removeEventListener('click', handleOk);
+      confirmCancelBtn.removeEventListener('click', handleCancel);
+    };
+
+    confirmOkBtn.addEventListener('click', handleOk);
+    confirmCancelBtn.addEventListener('click', handleCancel);
+  });
+}
 
 function hideAddFlashCardSection() {
   addFlashcardSection.style.display = 'none';
@@ -18,95 +58,120 @@ function showAddFlashCardSection() {
 }
 
 async function loadGroups() {
-  const res = await fetch(`${backendURL}/groups`);
-  const groups = await res.json();
+  try {
+    const res = await fetch(`${backendURL}/groups`);
+    const groups = await res.json();
 
-  const select = document.getElementById('group');
-  select.innerHTML = '<option value="">Select group</option>';
-  groups.forEach(g => {
-    const option = document.createElement('option');
-    option.value = g.name;
-    option.textContent = g.name;
-    select.appendChild(option);
-  });
+    const select = document.getElementById('group');
+    select.innerHTML = '<option value="">Select group</option>';
+    groups.forEach(g => {
+      const option = document.createElement('option');
+      option.value = g.name;
+      option.textContent = g.name;
+      select.appendChild(option);
+    });
 
-  return groups;
+    return groups;
+  } catch (err) {
+    showToast('Could not load groups. Is the server running?');
+    return [];
+  }
 }
 
 async function addGroup() {
   const name = document.getElementById('newGroup').value.trim();
   if (!name) return;
 
-  await fetch(`${backendURL}/groups`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name })
-  });
+  try {
+    await fetch(`${backendURL}/groups`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
 
-  document.getElementById('newGroup').value = '';
-  loadGroups();
-  loadFlashcards();
+    document.getElementById('newGroup').value = '';
+    loadGroups();
+    loadFlashcards();
+  } catch (err) {
+    showToast('Could not add group. Is the server running?');
+  }
 }
 
 async function deleteGroup(name) {
-  if (!confirm(`Delete group "${name}" and all its flashcards?`)) return;
+  const confirmed = await showConfirm(`Delete group "${name}" and all its flashcards?`);
+  if (!confirmed) return;
 
-  await fetch(`${backendURL}/groups/${name}`, { method: 'DELETE' });
-  loadGroups();
-  loadFlashcards();
+  try {
+    await fetch(`${backendURL}/groups/${name}`, { method: 'DELETE' });
+    loadGroups();
+    loadFlashcards();
+  } catch (err) {
+    showToast('Could not delete group. Is the server running?');
+  }
 }
 
 async function loadFlashcards() {
   showAddFlashCardSection();
 
-  const groups = await fetch(`${backendURL}/groups`).then(r => r.json());
-  const cards = await fetch(`${backendURL}/flashcards`).then(r => r.json());
+  try {
+    const groups = await fetch(`${backendURL}/groups`).then(r => r.json());
+    const cards = await fetch(`${backendURL}/flashcards`).then(r => r.json());
 
-  flashcardsDiv.innerHTML = '<h2>Groups</h2>';
+    flashcardsDiv.innerHTML = '<h2>Groups</h2>';
 
-  groups.forEach(groupObj => {
-    const groupName = groupObj.name;
-    const groupCards = cards.filter(c => c.group === groupName);
+    groups.forEach(groupObj => {
+      const groupName = groupObj.name;
+      const groupCards = cards.filter(c => c.group === groupName);
 
-    const div = document.createElement('div');
-    div.classList.add('flashcard');
+      const div = document.createElement('div');
+      div.classList.add('flashcard');
 
-    const title = document.createElement('h3');
-    const cardCount = groupCards.length;
-    title.textContent = `${groupName} — ${cardCount} ${cardCount === 1 ? 'card' : 'cards'}`;
-    div.appendChild(title);
+      const title = document.createElement('h3');
+      const cardCount = groupCards.length;
+      title.textContent = `${groupName} — ${cardCount} ${cardCount === 1 ? 'card' : 'cards'}`;
+      div.appendChild(title);
 
-    const btnContainer = document.createElement('div');
-    btnContainer.style.display = 'flex';
-    btnContainer.style.gap = '5px';
+      const btnContainer = document.createElement('div');
+      btnContainer.style.display = 'flex';
+      btnContainer.style.gap = '5px';
 
-    const studyBtn = document.createElement('button');
-    studyBtn.textContent = 'Study';
-    studyBtn.onclick = (e) => {
-      e.stopPropagation();
-      startStudyMode(groupName, groupCards);
-    };
-    btnContainer.appendChild(studyBtn);
+      const studyBtn = document.createElement('button');
+      studyBtn.textContent = 'Study';
+      studyBtn.onclick = (e) => {
+        e.stopPropagation();
+        startStudyMode(groupName, groupCards);
+      };
+      btnContainer.appendChild(studyBtn);
 
-    const editBtn = document.createElement('button');
-    editBtn.textContent = 'Edit';
-    editBtn.onclick = (e) => {
-      e.stopPropagation();
-      showEditMode(groupName, groupCards);
-    };
-    btnContainer.appendChild(editBtn);
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.onclick = (e) => {
+        e.stopPropagation();
+        showEditMode(groupName, groupCards);
+      };
+      btnContainer.appendChild(editBtn);
 
-    const delBtn = document.createElement('button');
-    delBtn.textContent = 'Delete';
-    delBtn.onclick = (e) => {
-      e.stopPropagation();
-      deleteGroup(groupName);
-    };
-    btnContainer.appendChild(delBtn);
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Delete';
+      delBtn.onclick = (e) => {
+        e.stopPropagation();
+        deleteGroup(groupName);
+      };
+      btnContainer.appendChild(delBtn);
 
-    div.appendChild(btnContainer);
-    flashcardsDiv.appendChild(div);
-  });
+      div.appendChild(btnContainer);
+      flashcardsDiv.appendChild(div);
+    });
+  } catch (err) {
+    flashcardsDiv.innerHTML = `
+      <div class="done-message">
+        <p>Could not connect to the server.</p>
+        <p>Please make sure the server is running and refresh the page.</p>
+        <button onclick="loadFlashcards()">Try Again</button>
+      </div>
+    `;
+    showToast('Could not load flashcards. Is the server running?');
+  }
 }
 
 function startStudyMode(groupName, groupCards) {
@@ -313,19 +378,30 @@ form.addEventListener('submit', async (e) => {
 
   if (!question || !answer || !group) return;
 
-  await fetch(`${backendURL}/flashcards`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question, answer, group })
-  });
+  try {
+    await fetch(`${backendURL}/flashcards`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, answer, group })
+    });
 
-  form.reset();
-  loadFlashcards();
+    form.reset();
+    loadFlashcards();
+  } catch (err) {
+    showToast('Could not add flashcard. Is the server running?');
+  }
 });
 
 async function deleteCard(id) {
-  await fetch(`${backendURL}/flashcards/${id}`, { method: 'DELETE' });
-  loadFlashcards();
+  const confirmed = await showConfirm('Delete this flashcard?');
+  if (!confirmed) return;
+
+  try {
+    await fetch(`${backendURL}/flashcards/${id}`, { method: 'DELETE' });
+    loadFlashcards();
+  } catch (err) {
+    showToast('Could not delete flashcard. Is the server running?');
+  }
 }
 
 async function editCard(card) {
@@ -333,13 +409,17 @@ async function editCard(card) {
   const answer = prompt('Edit answer:', card.answer);
   if (!question || !answer) return;
 
-  await fetch(`${backendURL}/flashcards/${card._id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question, answer, group: card.group })
-  });
+  try {
+    await fetch(`${backendURL}/flashcards/${card._id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, answer, group: card.group })
+    });
 
-  loadFlashcards();
+    loadFlashcards();
+  } catch (err) {
+    showToast('Could not update flashcard. Is the server running?');
+  }
 }
 
 loadGroups();

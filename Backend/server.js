@@ -101,7 +101,7 @@ app.delete('/flashcards/:id', async (req, res) => {
 
 async function startServer() {
   await connectDB();
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}: http://localhost:${PORT}`));
 }
 
 startServer();

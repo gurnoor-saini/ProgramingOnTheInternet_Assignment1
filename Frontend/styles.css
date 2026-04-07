@@ -206,3 +206,67 @@ select {
   gap: 15px;
   margin-top: 20px;
 }
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #c0776e;
+  color: var(--text-light);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 1000;
+  transition: opacity 0.5s ease;
+}
+
+.toast.hidden {
+  display: none;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: #2c2e25;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 340px;
+  width: 90%;
+  color: var(--text-light);
+}
+
+.modal-box p {
+  margin-bottom: 20px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.modal-btn-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.modal-btn-row button:first-child {
+  background-color: var(--btn-danger);
+  color: var(--text-light);
+}
+
+.modal-btn-row button:first-child:hover {
+  background-color: #a05a52;
+}
