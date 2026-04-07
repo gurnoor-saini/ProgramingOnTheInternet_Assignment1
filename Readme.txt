@@ -14,7 +14,9 @@ HOW TO RUN
    http://localhost:3000
 
 Note: The server must be running the whole time you use the app.
-      If you close the terminal the app will stop working.
+      If you close the terminal the app will stop working. 
+      It is okay for the marker to use the credential in the .env
+      as these credentials were just created for this assignment. 
 
 
 PROJECT SUMMARY 
