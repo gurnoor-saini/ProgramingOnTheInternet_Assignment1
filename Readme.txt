@@ -3,8 +3,6 @@ Flashcard Learning App
 HOW TO RUN 
 1. Open your terminal and navigate to the Backend folder:
    cd Backend
-2. Install dependencies (first time only):
-   npm install
 3. Start the server:
    node server.js
 4. Wait until you see the following in the terminal:
