@@ -33,8 +33,12 @@ function isAuthenticated() {
 function showLogin() {
   authSection.classList.remove('hidden');
   document.getElementById('inputArea').classList.add('hidden');
-  document.getElementById('searchBar').classList.add('hidden');
-  document.getElementById('flashcards').classList.add('hidden');
+  document.getElementById('groups-header-area').classList.add('hidden');
+  const flashcards = document.getElementById('flashcards');
+
+  // Clear flashcards HTML instantly so that the next user does not see the last user's screen briefly
+  flashcards.innerHTML = '';
+  flashcards.classList.add('hidden');
   logoutBtn.classList.add('hidden');
   document.getElementById('settingsBtn').classList.add('hidden');
   welcomeMessage.classList.add('hidden');
@@ -50,6 +54,7 @@ function clearLoginFields() {
 // Show the flashcard app UI and hide the login form
 function showApp() {
   authSection.classList.add('hidden');
+  document.getElementById('groups-header-area').classList.remove('hidden');
   document.getElementById('flashcards').classList.remove('hidden');
   logoutBtn.classList.remove('hidden');
   document.getElementById('settingsBtn').classList.remove('hidden');
@@ -57,7 +62,6 @@ function showApp() {
 
   const isAdmin = getAuthUser() === 'admin@example.com';
   document.getElementById('inputArea').classList.toggle('hidden', isAdmin);
-  document.getElementById('searchBar').classList.toggle('hidden', isAdmin);
 }
 
 // Update the auth UI based on whether a token is available
@@ -191,7 +195,7 @@ registerForm.addEventListener('submit', async (e) => {
     loginError.textContent = '';
     loginError.classList.add('hidden');
     document.getElementById('loginUsername').value = username;
-    showToast('Account created! Please sign in.');
+    showToast('Account created! Please sign in.', true);
   } catch (err) {
     registerError.textContent = 'Server connection error.';
     registerError.classList.remove('hidden');

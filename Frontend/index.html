@@ -3,10 +3,12 @@
 <head>
   <title>Flashcard App</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="searchbar.css">
+  <link rel="stylesheet" href="table.css">
 </head>
 <body>
   <div id="headerRow">
-    <h1>Flashcards</h1>
+    <h1>[ Flashcards ]</h1>
     <div id="headerBtns">
       <button id="settingsBtn" class="hidden icon-btn" title="Settings">
         <img src="images/settings.png" alt="Settings" style="width:24px;height:24px;">
@@ -22,7 +24,7 @@
     <form id="loginForm">
       <div class="input-group">
         <label>Username</label>
-        <input id="loginUsername" type="text" placeholder="username@example.com" required>
+        <input id="loginUsername" type="text" placeholder="username" required>
       </div>
       <div class="input-group">
         <label>Password</label>
@@ -34,7 +36,7 @@
     <form id="registerForm" class="hidden">
       <div class="input-group">
         <label>Username</label>
-        <input id="regUsername" type="text" placeholder="username@example.com" required>
+        <input id="regUsername" type="text" placeholder="username" required>
       </div>
       <div class="input-group">
         <label>Password</label>
@@ -67,11 +69,7 @@
     </form>
   </div>
 
-  <div id="searchBar" class="hidden">
-    <label class="search-label">Search:</label>
-    <input type="text" id="searchInput" placeholder="Search groups...">
-  </div>
-
+  <div id="groups-header-area"></div>
   <div id="flashcards"></div>
 
   <div id="toast" class="toast hidden">Something went wrong. Please try again.</div>
@@ -109,6 +107,8 @@
     </div>
   </div>
 
+  <script src="searchbar.js" defer></script>
+  <script src="table.js" defer></script>
   <script src="app.js" defer></script>
   <script src="login.js" defer></script>
 </body>
