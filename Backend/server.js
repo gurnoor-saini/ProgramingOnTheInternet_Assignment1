@@ -146,6 +146,28 @@ app.get('/groups', async (req, res) => {
   }
 });
 
+//Renaming a group and updating all its flashcards
+app.put('/groups/:name', async (req, res) => {
+  try {
+    const oldName = req.params.name;
+    const { newName } = req.body;
+    if (!newName || !newName.trim()) {
+      return res.status(400).json({ error: 'New name is required.' });
+    }
+    await db.collection('groups').updateOne(
+      { name: oldName, user_id: req.user },
+      { $set: { name: newName.trim() } }
+    );
+    await db.collection('flashcards').updateMany(
+      { group: oldName, user_id: req.user },
+      { $set: { group: newName.trim() } }
+    );
+    res.send({ success: true });
+  } catch (err) {
+    res.status(500).send('Error renaming group');
+  }
+});
+
 //Deleting a group and its associated flashcards
 app.delete('/groups/:name', async (req, res) => {
   try {

@@ -486,9 +486,72 @@ function showEditMode(groupName, groupCards) {
   const header = document.createElement('div');
   header.classList.add('full-row');
 
+  const titleRow = document.createElement('div');
+  titleRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:10px;';
+
   const title = document.createElement('h2');
   title.textContent = `${groupName} - Edit Mode`;
-  header.appendChild(title);
+  titleRow.appendChild(title);
+
+  const renameBtn = document.createElement('button');
+  renameBtn.textContent = '✏️ Rename';
+  renameBtn.title = 'Rename group';
+  renameBtn.classList.add('btn-primary');
+  renameBtn.style.cssText = 'font-size:0.85rem;padding:6px 12px;';
+  renameBtn.onclick = () => {
+    // Replace title with inline input
+    title.style.display = 'none';
+    renameBtn.style.display = 'none';
+
+    const renameInput = document.createElement('input');
+    renameInput.type = 'text';
+    renameInput.value = groupName;
+    renameInput.style.cssText = 'font-size:1.2rem;padding:4px 8px;border-radius:6px;border:1px solid var(--accent);';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save';
+    saveBtn.classList.add('btn-success');
+    saveBtn.style.cssText = 'font-size:0.85rem;padding:6px 12px;';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.style.cssText = 'font-size:0.85rem;padding:6px 12px;';
+
+    titleRow.appendChild(renameInput);
+    titleRow.appendChild(saveBtn);
+    titleRow.appendChild(cancelBtn);
+
+    cancelBtn.onclick = () => {
+      renameInput.remove();
+      saveBtn.remove();
+      cancelBtn.remove();
+      title.style.display = '';
+      renameBtn.style.display = '';
+    };
+
+    saveBtn.onclick = async () => {
+      const newName = renameInput.value.trim();
+      if (!newName || newName === groupName) { cancelBtn.onclick(); return; }
+      const res = await authFetch(`${backendURL}/groups/${encodeURIComponent(groupName)}`, {
+        method: 'PUT',
+        body: JSON.stringify({ newName })
+      });
+      if (res.ok) {
+        groupName = newName;
+        title.textContent = `${newName} - Edit Mode`;
+        renameInput.remove();
+        saveBtn.remove();
+        cancelBtn.remove();
+        title.style.display = '';
+        renameBtn.style.display = '';
+        showToast('Group renamed successfully.', true);
+      } else {
+        showToast('Error renaming group.');
+      }
+    };
+  };
+  titleRow.appendChild(renameBtn);
+  header.appendChild(titleRow);
 
   const { row: searchRow, input: searchField } = createSearchBar('Search flashcards...');
   header.appendChild(searchRow);

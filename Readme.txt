@@ -37,33 +37,22 @@ Deployment:   Local (localhost:3000)
 
 
 FEATURES
-
-User Accounts (CRUD)
-- Create: Register a new account via the Register link on the login page
-- Read:   Log in with username and password (JWT authentication)
-- Update: Change your password via the Settings panel
-- Delete: Delete your own account via the Settings panel
-
-Flashcard Groups (CRUD)
-- Create: Add a new group by entering a name and clicking Add Group
-- Read:   View all your groups on the main page with live search filtering
-- Delete: Delete a group and all its flashcards with the Delete button
-
-Flashcards (CRUD)
-- Create: Add a flashcard with a question and answer to any group
-- Read:   View all flashcards in a group; study them in study mode
-- Update: Edit a flashcard's question or answer in edit mode
-- Delete: Delete individual flashcards in edit mode
-
-Other Features
-- Live search: filter groups in real-time as you type on the main page
-- Live search: filter flashcards within a group in real-time in edit mode
-- Study mode with question-first reveal, answer shown only on request
+- CRUD for 3 entites including : groups, flashcards, user
+- Register a new account or log in to an existing one with password hashing and JW implemented
+- Update pastword or delete account using the side panel
+- Create  groups (subjects)
+- Edit group name in edit mode
+- Delete entire groups in edit mode (with all their cards)
+- Add flashcards with a question and answer to any group
+- Edit existing flashcard questions and answers
+- Delete individual flashcards
+- Live search: filter groups in real time as you type on the main page
+- Live search: filter flashcards within a group in real time in edit mode
+- Study mode with question first reveal, answer shown only on request
 - Tick to mark a card as known and remove it from the pile
 - Cross to send a card to the back of the pile for more practice
 - Smooth animation when a card is answered correctly or incorrectly
 - Randomise card order toggle in study mode
-- Settings panel: change password or delete your account
 - Admin view: see all users' study history (correct/incorrect per card)
 - Admin view: see all registered users with their role and last login time
 - Admin can delete any non-admin user account and all their data
@@ -111,3 +100,22 @@ Two users are seeded into the database on server start:
   testuser@example.com / testuser (regular user)
 
 New accounts can also be created via the Register link on the login page.
+
+
+WORKLOAD ALLOCATION
+
+Jackie Truong (jackie-trng05):
+- Registration/login: user authentication with bcrypt password hashing and JWT tokens
+- Admin view: extended admin panel to show all users with roles and last login time
+- Admin can delete any non-admin user account and all their data
+- UI: colour token consolidation, CSS restructuring, searchbar and table
+  abstracted into reusable components (searchbar.js, searchbar.css, table.js, table.css)
+- General styling and layout improvements across all views
+
+Gurnoor Saini (gurnoor-saini):
+- Live search: real-time filtering of groups on main page and flashcards in edit mode
+- Admin view: initial implementation showing all users learning history (correct/incorrect)
+- User account CRUD: change password and delete account via settings panel
+- User registration: Register link and form on the login page
+- Group rename: rename a group from edit mode (completing full CRUD on groups entity)
+- Study history recording: POST /history endpoint and frontend calls on correct/incorrect
