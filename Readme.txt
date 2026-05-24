@@ -37,19 +37,36 @@ Deployment:   Local (localhost:3000)
 
 
 FEATURES
-- Register a new account or log in to an existing one
-- Create flashcard groups (subjects)
-- Add flashcards with a question and answer to any group
-- Edit existing flashcard questions and answers
-- Delete individual flashcards or entire groups (with all their cards)
-- Live search: filter groups in real-time as you type
+
+User Accounts (CRUD)
+- Create: Register a new account via the Register link on the login page
+- Read:   Log in with username and password (JWT authentication)
+- Update: Change your password via the Settings panel
+- Delete: Delete your own account via the Settings panel
+
+Flashcard Groups (CRUD)
+- Create: Add a new group by entering a name and clicking Add Group
+- Read:   View all your groups on the main page with live search filtering
+- Delete: Delete a group and all its flashcards with the Delete button
+
+Flashcards (CRUD)
+- Create: Add a flashcard with a question and answer to any group
+- Read:   View all flashcards in a group; study them in study mode
+- Update: Edit a flashcard's question or answer in edit mode
+- Delete: Delete individual flashcards in edit mode
+
+Other Features
+- Live search: filter groups in real-time as you type on the main page
+- Live search: filter flashcards within a group in real-time in edit mode
 - Study mode with question-first reveal, answer shown only on request
 - Tick to mark a card as known and remove it from the pile
 - Cross to send a card to the back of the pile for more practice
 - Smooth animation when a card is answered correctly or incorrectly
 - Randomise card order toggle in study mode
 - Settings panel: change password or delete your account
-- Admin view: log in as admin to see all users' study history
+- Admin view: see all users' study history (correct/incorrect per card)
+- Admin view: see all registered users with their role and last login time
+- Admin can delete any non-admin user account and all their data
 
 
 FOLDER STRUCTURE
@@ -59,9 +76,13 @@ ProgramingOnTheInternet_Assignment1/
 |
 |-- Frontend/
 |   |-- index.html           - Single HTML file (entire app lives here)
-|   |-- styles.css           - All styling: theme variables, layout, animations
-|   |-- app.js               - Main app logic: CRUD, study mode, search, admin view
+|   |-- styles.css           - Core styling: theme variables, layout, animations
+|   |-- app.js               - Main app logic: CRUD, study mode, admin view
 |   |-- login.js             - Authentication: register, login, logout, JWT handling
+|   |-- searchbar.js         - Reusable search bar component used across views
+|   |-- searchbar.css        - Styles for the search bar component
+|   |-- table.js             - Reusable admin table component (history + users)
+|   |-- table.css            - Styles for admin data tables
 |   |-- images/
 |       |-- Card.png         - Background image used for study flashcards
 |       |-- settings.png     - Settings icon in the bottom-right toolbar
